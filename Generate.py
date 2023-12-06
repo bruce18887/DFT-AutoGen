@@ -92,7 +92,7 @@ class Generate:
     def __init__(self):
         super().__init__()
         self.PaW = PaperWirte("test.cpp")
-
+        self.__logprint = False
     def FV(self,PINSTR,Forcevalue,ATTR_STR=None):
         # 根据PINSTR 选择force模式
         PINobj = PINS(PINSTR)
@@ -108,10 +108,14 @@ class Generate:
             print(f"no support range {ATTRobj.dict['vrange']} {ATTRobj.dict['irange']}")
             return
         else:
-            VRange = AutomaticRange("Volt",Forcevalue)
-        #DFT AUTO Gen log
-        self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FV VALUE:{Forcevalue}")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+            if Forcevalue is None:
+                VRange = APU12Range.Vranges.APU12_3p6V
+            else:
+                VRange = AutomaticRange("Volt",Forcevalue)
+        if self.__logprint:
+            #DFT AUTO Gen log
+            self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FV VALUE:{Forcevalue}")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         #针对单个pin
         if PINobj.pinmode == PinMode.single:
             if CaploadTime is None:
@@ -134,7 +138,8 @@ class Generate:
         elif PINobj.pinmode == PinMode.separate:
             print(f"FV:{PINSTR} ----error:no support PinMode.separate")
             return
-        self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
+        if self.__logprint:
+            self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
     def FI(self,PINSTR,Forcevalue,ATTR_STR=None):
         # 根据PINSTR 选择force模式
         PINobj = PINS(PINSTR)
@@ -150,10 +155,14 @@ class Generate:
             print(f"no support range {VRange} {IRange}")
             return
         else:
-            IRange = AutomaticRange("Current",Forcevalue)
-        #DFT AUTO Gen log
-        self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FV VALUE:{Forcevalue}")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+            if Forcevalue is None:
+                IRange = APU12Range.Iranges.APU12_1MA
+            else:
+                IRange = AutomaticRange("Current",Forcevalue)
+        if self.__logprint:
+            #DFT AUTO Gen log
+            self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FV VALUE:{Forcevalue}")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         # 针对单个pin
         if PINobj.pinmode == PinMode.single:
             if CaploadTime is None:
@@ -176,7 +185,8 @@ class Generate:
         elif PINobj.pinmode == PinMode.separate:
             print(f"FI:{PINSTR} ----error:no support PinMode.separate")
             return
-        self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
+        if self.__logprint:
+            self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
     def FIMV(self,PINSTR,Forcevalue,ATTR_STR=None):
         # 根据PINSTR 选择force模式
         PINobj = PINS(PINSTR)
@@ -193,10 +203,14 @@ class Generate:
             print(f"no support range {IRange}")
             return
         else:
-            IRange = AutomaticRange("Current",Forcevalue)
-        # DFT AUTO Gen log
-        self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FIMV VALUE:{Forcevalue}")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+            if Forcevalue is None:
+                IRange = APU12Range.Iranges.APU12_1MA
+            else:
+                IRange = AutomaticRange("Current",Forcevalue)
+        if self.__logprint:
+            # DFT AUTO Gen log
+            self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FIMV VALUE:{Forcevalue}")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         # 针对单个pin
         if PINobj.pinmode == PinMode.single:
             if CaploadTime is None:
@@ -233,7 +247,8 @@ class Generate:
             self.PaW.WriteLine(f"    apu12set(OPERATE_PINS[i], APU12_FI, 0, {VRange}, {IRange}, APU12_PIN_TO_VI);")
             self.PaW.WriteLine(f"    apu12set(OPERATE_PINS[i], APU12_OFF, 0, {VRange}, {IRange}, APU12_PIN_TO_VI);//off")
             self.PaW.WriteLine("    lwait(100);\n}")
-        self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
+        if self.__logprint:
+            self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
     def FVpull(self,PINSTR,Forcevalue,ATTR_STR=None):
         # 根据PINSTR 选择force模式
         PINobj = PINS(PINSTR)
@@ -248,10 +263,11 @@ class Generate:
             return
         else:
             VRange = AutomaticRange("Volt",Forcevalue)
-        # DFT AUTO Gen log
-        self.PaW.WriteLine(
-            f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FVPULL VALUE:{Forcevalue}")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+        if self.__logprint:
+            # DFT AUTO Gen log
+            self.PaW.WriteLine(
+                f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:FVPULL VALUE:{Forcevalue}")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         # 针对单个pin
         if PINobj.pinmode == PinMode.single:
             self.PaW.WriteLine(f"Relay(K_{PINSTR}_PULL, K_CLOSE);")
@@ -302,9 +318,10 @@ class Generate:
         # 属性解析
         ATTRobj = Attribute(ATTR_STR)
         MeasureRecord = ATTRobj.dict["measurerecord"]
-        # DFT AUTO Gen log
-        self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:MV")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+        if self.__logprint:
+            # DFT AUTO Gen log
+            self.PaW.WriteLine(f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:MV")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         # 针对单个pin
         if PINobj.pinmode == PinMode.single:
             self.PaW.WriteLine(f"if (debug_wait_num == indexOfTest) apu12mv({PINSTR}, 4000, 13.0);")
@@ -323,7 +340,8 @@ class Generate:
                 self.PaW.WriteLine(f"if (debug_wait_num == indexOfTest) apu12mv({pin}, 4000, 13.0);")
                 self.PaW.WriteLine(f"apu12mv({pin}, 20, 13);")
                 self.PaW.WriteLine(f"groupgetresults(results[indexOfTest], NUM_SITES);")
-        self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
+        if self.__logprint:
+            self.PaW.WriteLine(f"--------------------------------------------------------------------------------------------")
 
     def MI(self,PINSTR,ATTR_STR=None):
         # 根据PINSTR 选择force模式
@@ -331,10 +349,11 @@ class Generate:
         # 属性解析
         ATTRobj = Attribute(ATTR_STR)
         MeasureRecord = ATTRobj.dict["measurerecord"]
-        # DFT AUTO Gen log
-        self.PaW.WriteLine(
-            f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:MV")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+        if self.__logprint:
+            # DFT AUTO Gen log
+            self.PaW.WriteLine(
+                f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: PINS:{PINSTR} OPERATE:MV")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         # 针对单个pin
         if PINobj.pinmode == PinMode.single:
             self.PaW.WriteLine(f"if (debug_wait_num == indexOfTest) apu12mi({PINSTR}, 4000, 13.0);")
@@ -353,8 +372,9 @@ class Generate:
                 self.PaW.WriteLine(f"if (debug_wait_num == indexOfTest) apu12mi({pin}, 4000, 13.0);")
                 self.PaW.WriteLine(f"apu12mi({pin}, 20, 13);")
                 self.PaW.WriteLine(f"groupgetresults(results[indexOfTest], NUM_SITES);")
-        self.PaW.WriteLine(
-            f"--------------------------------------------------------------------------------------------")
+        if self.__logprint:
+            self.PaW.WriteLine(
+                f"--------------------------------------------------------------------------------------------")
     def MVfreq(self):
         pass
 
@@ -391,10 +411,11 @@ class Generate:
         # Unit = ATTRobj.dict["unit"]
         Fomulaobj = re.split(r'([+\-*/])', Fomula)
         Fomulaobj = [item for item in Fomulaobj if item]
-        # DFT AUTO Gen log
-        self.PaW.WriteLine(
-            f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: OPERATE:Calculate CalculateFomula:{ResultSTR}={Fomula}")
-        self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
+        if self.__logprint:
+            # DFT AUTO Gen log
+            self.PaW.WriteLine(
+                f"//-----[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DFT AUTO Gen: OPERATE:Calculate CalculateFomula:{ResultSTR}={Fomula}")
+            self.PaW.WriteLine(f"//-----Attribute:{ATTR_STR}")
         self.PaW.WriteLine(f"groupgetresults({ResultSTR}, NUM_SITES);//There might be a problem")
         self.PaW.WriteLine("FOR_EACH_SITE(site, NUM_SITES)\n{")
         self.PaW.Write(f"    {ResultSTR}[site].value = ")
@@ -404,5 +425,54 @@ class Generate:
             else:
                 self.PaW.Write(f"{var} ")
         self.PaW.WriteLine("\n}")
-        self.PaW.WriteLine(
-            f"--------------------------------------------------------------------------------------------")
+        if self.__logprint:
+            self.PaW.WriteLine(
+                f"--------------------------------------------------------------------------------------------")
+
+    def TestFunctionSetup(self):
+        TestFunction = "Output"
+        self.PaW.WriteLine(f"// Test Function: {TestFunction}")
+        self.PaW.WriteLine(f"ETS_PRGFLOW_FUNC {TestFunction}( int DSIndex, LPCTSTR TestLabel )")
+        self.PaW.WriteLine("{")
+        self.PaW.WriteLine("//////////////////////////////////////")
+        self.PaW.WriteLine("// Update test numbering information")
+        self.PaW.WriteLine("SetTestNumber( TestNmbr[DSIndex] );")
+        self.PaW.WriteLine("SetSubTestNumber( SubTestNmbr[DSIndex] );")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("int site;")
+        self.PaW.WriteLine("int indexOfTest = 0;")
+        self.PaW.WriteLine("int indexOfDS = DSIndex;")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("vector<int> OPERATE_PINS;\nOPERATE_PINS.clear();")
+        self.PaW.WriteLine("RESULTS_STR results[1000][NUM_SITES];")
+        self.PaW.WriteLine("RESULTS_STR V0[NUM_SITES],V1[NUM_SITES],V2[NUM_SITES],V3[NUM_SITES];")
+        self.PaW.WriteLine("RESULTS_STR I0[NUM_SITES],I1[NUM_SITES],I2[NUM_SITES],I3[NUM_SITES];")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("static int debug_wait_num = -1;")
+        self.PaW.WriteLine("ACCUMULATOR_STR	accum[NUM_SITES];")
+        self.PaW.WriteLine("int WD = 400;//PMBUS write delay time")
+        self.PaW.WriteLine("int RD = 200;//PMBUS read delay time")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("for (int i = 0; i < 1000; i++)")
+        self.PaW.WriteLine("{")
+        self.PaW.WriteLine("    for (int j = 0; j < NUM_SITES; j++)")
+        self.PaW.WriteLine("    {")
+        self.PaW.WriteLine("        results[i][j].PassFail = 0;")
+        self.PaW.WriteLine("        results[i][j].resource = 0;")
+        self.PaW.WriteLine("        results[i][j].site = -2;//use site to check whether we have data for this result")
+        self.PaW.WriteLine("        results[i][j].value = 0;")
+        self.PaW.WriteLine("    }")
+        self.PaW.WriteLine("--------------------------------------------------------------------------")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("")
+
+    def TestFunctionEnd(self):
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("")
+        self.PaW.WriteLine("--------------------------------------------------------------------------")
+        self.PaW.WriteLine("FailSiteFlag();//")
+        self.PaW.WriteLine("return( msSiteStat( MS_ALL ) ); // Return w/status")
+        self.PaW.WriteLine("} // END_ETS_PRGFLOW_FUNC")
+        self.PaW.WriteLine("")

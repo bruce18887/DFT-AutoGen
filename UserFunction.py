@@ -1,6 +1,7 @@
 import re
-from Defines import APU12Range,Units
-
+from Defines import APU12Range,Units,LogLevel
+import inspect
+from datetime import datetime
 class StrOperate:
     def __init__(self):
         pass
@@ -38,9 +39,14 @@ def AutomaticRange(Mode, Value):
 
 def ValueAutomaticSet(ValueStr):
     #单位
-    unit = re.sub(r'\d|\.', '', ValueStr).lower()
+    unit = re.sub(r'[-.\d]+', '', ValueStr).lower()
     #值
-    value = float(re.sub(r'[a-zA-Z]', '', ValueStr))
+    if '.' in ValueStr:
+        value = float(re.sub(r'[a-zA-Z]', '', ValueStr))
+    else:
+        value = int(re.sub(r'[a-zA-Z]', '', ValueStr))
+    if value is None:
+        return None
     if unit is None:
         return value
     if "v" in unit:
@@ -66,3 +72,11 @@ def ValueAutomaticSet(ValueStr):
             return value*1000
     else:
         print(f"no support  -- {ValueStr}")
+
+def CurrentFunctionName():
+    frame = inspect.currentframe().f_back
+    return frame.f_code.co_name
+
+def GenConsoleLog(where,logstr,loglevel = LogLevel.Normal):
+    print(f"[{loglevel}] {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}---On[{where}]--->{logstr}")
+
